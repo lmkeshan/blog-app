@@ -2,13 +2,11 @@
 session_start();
 require_once 'config/db.php';
 
-// Protect page: Redirect to login if user is not logged in
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
-// Fetch blog posts from database along with author usernames
 $sql = "SELECT blog_posts.*, users.username 
         FROM blog_posts 
         JOIN users ON blog_posts.user_id = users.id 
