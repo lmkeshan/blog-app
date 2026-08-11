@@ -56,17 +56,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $update_stmt->close();
     }
 }
+
+$page_title = "Edit Post - Blog App";
+require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Post - Blog App</title>
-</head>
-<body style="font-family: sans-serif; max-width: 600px; margin: 30px auto; padding: 0 20px;">
-
+<main style="max-width: 600px; margin: 0 auto;">
     <h2>Edit Blog Post</h2>
     <p><a href="view.php?id=<?php echo $post['id']; ?>">&larr; Cancel and Back to Post</a></p>
 
@@ -88,6 +83,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <button type="submit" style="padding: 10px 15px; cursor: pointer;">Update Post</button>
     </form>
+</main>
 
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

@@ -41,22 +41,13 @@ if ($lib_stmt->get_result()->num_rows > 0) {
     $in_library = true;
 }
 $lib_stmt->close();
+
+$page_title = htmlspecialchars($post['title']) . " - Blog App";
+require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?php echo htmlspecialchars($post['title']); ?> - Blog App</title>
-</head>
-<body style="font-family: sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px;">
-
-    <!-- Navigation Header -->
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-        <p><a href="index.php">&larr; Back to All Posts</a></p>
-        <p><a href="library.php">📚 View My Library</a></p>
-    </div>
+<main>
+    <p><a href="index.php">&larr; Back to All Posts</a></p>
 
     <!-- Single Post Article -->
     <article style="border: 1px solid #ddd; padding: 25px; border-radius: 5px; margin-top: 10px;">
@@ -88,6 +79,6 @@ $lib_stmt->close();
             </div>
         <?php endif; ?>
     </article>
+</main>
 
-</body>
-</html>
+<?php require_once 'includes/footer.php'; ?>

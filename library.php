@@ -21,24 +21,18 @@ $stmt = $conn->prepare($sql);
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
+
+$page_title = "My Library - Blog App";
+require_once 'includes/header.php';
 ?>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Library - Blog App</title>
-</head>
-<body style="font-family: sans-serif; max-width: 800px; margin: 30px auto; padding: 0 20px;">
-
-    <p><a href="index.php">&larr; Back to Home</a></p>
+<main>
     <h2>📚 My Reading Library</h2>
 
     <?php if ($result->num_rows > 0): ?>
         <?php while ($post = $result->fetch_assoc()): ?>
             <article style="border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
-                <h3><a href="view.php?id=<?php echo $post['id']; ?>"><?php echo htmlspecialchars($post['title']); ?></a></h3>
+                <h3><a href="view.php?id=<?php echo $post['id']; ?>" style="text-decoration: none; color: #1a0dab;"><?php echo htmlspecialchars($post['title']); ?></a></h3>
                 <p style="color: #666; font-size: 0.9em;">
                     By <strong><?php echo htmlspecialchars($post['username']); ?></strong> | 
                     Saved on <?php echo date('F j, Y', strtotime($post['saved_at'])); ?>
@@ -52,5 +46,6 @@ $result = $stmt->get_result();
     <?php endif; ?>
 
     <?php $stmt->close(); ?>
-</body>
-</html>
+</main>
+
+<?php require_once 'includes/footer.php'; ?>
