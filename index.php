@@ -24,6 +24,15 @@ require_once 'includes/header.php';
     <?php if ($result && $result->num_rows > 0): ?>
         <?php while ($post = $result->fetch_assoc()): ?>
             <article style="border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+                <!-- Thumbnail Display -->
+                <?php if (!empty($post['thumbnail']) && file_exists('uploads/' . $post['thumbnail'])): ?>
+                    <a href="view.php?id=<?php echo $post['id']; ?>">
+                        <img src="uploads/<?php echo htmlspecialchars($post['thumbnail']); ?>" 
+                             alt="<?php echo htmlspecialchars($post['title']); ?>" 
+                             style="width: 100%; max-height: 250px; object-fit: cover; border-radius: 4px; margin-bottom: 15px;">
+                    </a>
+                <?php endif; ?>
+
                 <h3><a href="view.php?id=<?php echo $post['id']; ?>" style="text-decoration: none; color: #1a0dab;"><?php echo htmlspecialchars($post['title']); ?></a></h3>
                 <p style="color: #666; font-size: 0.9em;">
                     By <strong><?php echo htmlspecialchars($post['username']); ?></strong> 
