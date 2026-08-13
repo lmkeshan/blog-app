@@ -1,0 +1,48 @@
+.form-container {
+  max-width: 650px;
+  margin: 0 auto;
+  background-color: var(--bg-card);
+  padding: 30px;
+  border-radius: var(--border-radius);
+  border: 1px solid var(--border-color);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-main);
+  font-weight: 500;
+}
+
+.form-control {
+  width: 100%;
+  padding: 12px;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-main);
+  font-size: 0.95rem;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--accent-yellow);
+}
+
+textarea.form-control {
+  resize: vertical;
+  min-height: 150px;
+}
+
+.alert-error {
+  background-color: rgba(220, 53, 69, 0.15);
+  border: 1px solid #dc3545;
+  color: #ff6b6b;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}

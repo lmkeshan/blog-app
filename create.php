@@ -19,7 +19,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($title) || empty($content)) {
         $error = "Please fill in both the title and content.";
     } else {
-        // Handle User Thumbnail Upload
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             $file_tmp_path = $_FILES['thumbnail']['tmp_name'];
             $file_name     = $_FILES['thumbnail']['name'];
@@ -28,7 +27,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $allowed_extensions = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
 
             if (in_array($file_ext, $allowed_extensions)) {
-                // Generate a unique filename to prevent user uploads from overwriting each other
                 $thumbnail_filename = uniqid('thumb_', true) . '.' . $file_ext;
                 $upload_file_path   = 'uploads/' . $thumbnail_filename;
 
@@ -40,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        // Insert into database if no errors
         if (empty($error)) {
             $stmt = $conn->prepare("INSERT INTO blog_posts (user_id, title, content, thumbnail) VALUES (?, ?, ?, ?)");
             $stmt->bind_param("isss", $user_id, $title, $content, $thumbnail_filename);
@@ -58,36 +55,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Create Post - Blog App";
+$css_file   = "create.css"; // Dynamically loads assets/css/create.css
 require_once 'includes/header.php';
 ?>
 
-<main style="max-width: 600px; margin: 0 auto;">
-    <h2>Create a New Blog Post</h2>
-    <p><a href="index.php">&larr; Back to Home</a></p>
+<div class="form-container">
+    <h2 style="color: var(--text-main); margin-bottom: 10px;">Create a New Blog Post</h2>
+    <p style="margin-bottom: 25px;"><a href="index.php" style="color: var(--text-muted);">&larr; Back to Home</a></p>
 
     <?php if (!empty($error)): ?>
-        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+        <div class="alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
-    <!-- Note: enctype="multipart/form-data" is REQUIRED for file uploads -->
     <form action="create.php" method="POST" enctype="multipart/form-data">
-        <div style="margin-bottom: 15px;">
-            <label for="title">Title</label><br>
-            <input type="text" id="title" name="title" required style="width: 100%; padding: 8px;">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" class="form-control" placeholder="Enter post title" required>
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="thumbnail">Thumbnail Image (Optional)</label><br>
-            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="width: 100%; padding: 8px;">
+        <div class="form-group">
+            <label for="thumbnail">Thumbnail Image (Optional)</label>
+            <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="content">Content</label><br>
-            <textarea id="content" name="content" rows="8" required style="width: 100%; padding: 8px;"></textarea>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" class="form-control" rows="10" placeholder="Write your post content here..." required></textarea>
         </div>
 
-        <button type="submit" style="padding: 10px 15px; cursor: pointer;">Publish Post</button>
+        <button type="submit" class="btn" style="width: 100%;">Publish Post</button>
     </form>
-</main>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>

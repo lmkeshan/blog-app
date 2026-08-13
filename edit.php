@@ -37,12 +37,11 @@ if ($post['user_id'] !== $user_id) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title   = trim($_POST['title']);
     $content = trim($_POST['content']);
-    $thumbnail_filename = $post['thumbnail']; 
+    $thumbnail_filename = $post['thumbnail'];
 
     if (empty($title) || empty($content)) {
         $error = "Please fill in both the title and content.";
     } else {
-        // Check if user uploaded a new thumbnail
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             $file_tmp_path = $_FILES['thumbnail']['tmp_name'];
             $file_name     = $_FILES['thumbnail']['name'];
@@ -55,7 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $upload_file_path = 'uploads/' . $new_filename;
 
                 if (move_uploaded_file($file_tmp_path, $upload_file_path)) {
-                    // Delete old thumbnail file if exists
                     if (!empty($post['thumbnail']) && file_exists('uploads/' . $post['thumbnail'])) {
                         unlink('uploads/' . $post['thumbnail']);
                     }
@@ -85,42 +83,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Edit Post - Blog App";
+$css_file   = "edit.css"; // Dynamically loads assets/css/edit.css
 require_once 'includes/header.php';
 ?>
 
-<main style="max-width: 600px; margin: 0 auto;">
-    <h2>Edit Blog Post</h2>
-    <p><a href="view.php?id=<?php echo $post['id']; ?>">&larr; Cancel and Back to Post</a></p>
+<div class="form-container">
+    <h2 style="color: var(--text-main); margin-bottom: 10px;">Edit Blog Post</h2>
+    <p style="margin-bottom: 25px;"><a href="view.php?id=<?php echo $post['id']; ?>" style="color: var(--text-muted);">&larr; Cancel and Back to Post</a></p>
 
     <?php if (!empty($error)): ?>
-        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+        <div class="alert-error"><?php echo htmlspecialchars($error); ?></div>
     <?php endif; ?>
 
     <form action="edit.php?id=<?php echo $post['id']; ?>" method="POST" enctype="multipart/form-data">
-        <div style="margin-bottom: 15px;">
-            <label for="title">Title</label><br>
-            <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($post['title']); ?>" required style="width: 100%; padding: 8px;">
+        <div class="form-group">
+            <label for="title">Title</label>
+            <input type="text" id="title" name="title" class="form-control" value="<?php echo htmlspecialchars($post['title']); ?>" required>
         </div>
 
         <?php if (!empty($post['thumbnail']) && file_exists('uploads/' . $post['thumbnail'])): ?>
-            <div style="margin-bottom: 15px;">
+            <div class="form-group">
                 <label>Current Thumbnail:</label><br>
-                <img src="uploads/<?php echo htmlspecialchars($post['thumbnail']); ?>" alt="Current thumbnail" style="max-width: 150px; border-radius: 4px; margin-top: 5px;">
+                <img src="uploads/<?php echo htmlspecialchars($post['thumbnail']); ?>" alt="Current thumbnail" class="current-thumb-preview">
             </div>
         <?php endif; ?>
 
-        <div style="margin-bottom: 15px;">
-            <label for="thumbnail">Change Thumbnail (Optional)</label><br>
-            <input type="file" id="thumbnail" name="thumbnail" accept="image/*" style="width: 100%; padding: 8px;">
+        <div class="form-group">
+            <label for="thumbnail">Change Thumbnail (Optional)</label>
+            <input type="file" id="thumbnail" name="thumbnail" class="form-control" accept="image/*">
         </div>
 
-        <div style="margin-bottom: 15px;">
-            <label for="content">Content</label><br>
-            <textarea id="content" name="content" rows="8" required style="width: 100%; padding: 8px;"><?php echo htmlspecialchars($post['content']); ?></textarea>
+        <div class="form-group">
+            <label for="content">Content</label>
+            <textarea id="content" name="content" class="form-control" rows="10" required><?php echo htmlspecialchars($post['content']); ?></textarea>
         </div>
 
-        <button type="submit" style="padding: 10px 15px; cursor: pointer;">Update Post</button>
+        <button type="submit" class="btn" style="width: 100%;">Update Post</button>
     </form>
-</main>
+</div>
 
 <?php require_once 'includes/footer.php'; ?>

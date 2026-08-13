@@ -1,0 +1,20 @@
+
+@import url("index.css");
+
+.library-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
+}
+
+.remove-link {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: 10px;
+  display: inline-block;
+}
+
+.remove-link:hover {
+  text-decoration: underline;
+}

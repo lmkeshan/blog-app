@@ -22,37 +22,46 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $page_title = "My Library - Blog App";
+$css_file   = "library.css"; // Dynamically loads assets/css/library.css
 require_once 'includes/header.php';
 ?>
 
-<main>
-    <h2> My Reading Library</h2>
+<div class="library-header">
+    <h2 class="page-title">📚 My Reading Library</h2>
+</div>
 
-    <?php if ($result->num_rows > 0): ?>
+<?php if ($result->num_rows > 0): ?>
+    <div class="posts-grid">
         <?php while ($post = $result->fetch_assoc()): ?>
-            <article style="border: 1px solid #ddd; padding: 20px; border-radius: 5px; margin-bottom: 20px;">
+            <article class="post-card">
                 <?php if (!empty($post['thumbnail']) && file_exists('uploads/' . $post['thumbnail'])): ?>
                     <a href="view.php?id=<?php echo $post['id']; ?>">
                         <img src="uploads/<?php echo htmlspecialchars($post['thumbnail']); ?>" 
                              alt="<?php echo htmlspecialchars($post['title']); ?>" 
-                             style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 15px;">
+                             class="post-card-img">
                     </a>
                 <?php endif; ?>
 
-                <h3><a href="view.php?id=<?php echo $post['id']; ?>" style="text-decoration: none; color: #1a0dab;"><?php echo htmlspecialchars($post['title']); ?></a></h3>
-                <p style="color: #666; font-size: 0.9em;">
-                    By <strong><?php echo htmlspecialchars($post['username']); ?></strong> | 
-                    Saved on <?php echo date('F j, Y', strtotime($post['saved_at'])); ?>
-                </p>
-                <p><?php echo nl2br(htmlspecialchars(substr($post['content'], 0, 150))); ?>...</p>
-                <a href="library_action.php?post_id=<?php echo $post['id']; ?>" style="color: red;">Remove from Library</a>
+                <div class="post-card-body">
+                    <h3 class="post-title">
+                        <a href="view.php?id=<?php echo $post['id']; ?>"><?php echo htmlspecialchars($post['title']); ?></a>
+                    </h3>
+                    <div class="post-meta">
+                        By <strong><?php echo htmlspecialchars($post['username']); ?></strong> • Saved on <?php echo date('M j, Y', strtotime($post['saved_at'])); ?>
+                    </div>
+                    <p class="post-excerpt"><?php echo nl2br(htmlspecialchars(substr($post['content'], 0, 120))); ?>...</p>
+                    
+                    <div>
+                        <a href="library_action.php?post_id=<?php echo $post['id']; ?>" class="remove-link">Remove from Library</a>
+                    </div>
+                </div>
             </article>
         <?php endwhile; ?>
-    <?php else: ?>
-        <p>Your library is empty. Explore posts on the <a href="index.php">home page</a> and save them for later!</p>
-    <?php endif; ?>
+    </div>
+<?php else: ?>
+    <p>Your library is empty. Explore posts on the <a href="index.php" style="color: var(--accent-yellow);">home page</a> and save them for later!</p>
+<?php endif; ?>
 
-    <?php $stmt->close(); ?>
-</main>
+<?php $stmt->close(); ?>
 
 <?php require_once 'includes/footer.php'; ?>
