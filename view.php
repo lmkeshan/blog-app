@@ -40,7 +40,7 @@ if ($lib_stmt->get_result()->num_rows > 0) {
 $lib_stmt->close();
 
 $page_title = htmlspecialchars($post['title']) . " - Blog App";
-$css_file   = "view.css"; // Dynamically loads assets/css/view.css
+$css_file   = "view.css";
 require_once 'includes/header.php';
 ?>
 

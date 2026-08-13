@@ -83,7 +83,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Edit Post - Blog App";
-$css_file   = "edit.css"; // Dynamically loads assets/css/edit.css
+$css_file   = "edit.css";
 require_once 'includes/header.php';
 ?>
 

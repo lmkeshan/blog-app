@@ -7,7 +7,6 @@ if (!isset($_SESSION['user_id'])) {
     exit();
 }
 
-// Check if an 'id' parameter is provided
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $post_id = (int)$_GET['id'];
     $user_id = $_SESSION['user_id'];
@@ -18,7 +17,6 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $stmt->close();
 }
 
-// Always redirect back to home page after deletion
 header("Location: index.php");
 exit();
 ?>

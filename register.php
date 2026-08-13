@@ -1,120 +1,97 @@
 <?php
+session_start();
+require_once 'config/db.php';
 
-    session_start();
-    require_once 'config/db.php';
+// Redirect if already logged in
+if (isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
 
-    $errors = [];
-    $success = "";
+$error = "";
 
-    if($_SERVER['REQUEST_METHOD'] === 'POST'){
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $username = trim($_POST['username']);
+    $email    = trim($_POST['email']);
+    $password = $_POST['password'];
+    $confirm  = $_POST['confirm_password'];
 
-        $username = trim($_POST['username']);
-        $email = trim($_POST['email']);
-        $password = $_POST['password'];
-        $confirm_password = $_POST['confirm_password'];
+    if (empty($username) || empty($email) || empty($password) || empty($confirm)) {
+        $error = "Please fill in all required fields.";
+    } elseif ($password !== $confirm) {
+        $error = "Passwords do not match.";
+    } elseif (strlen($password) < 6) {
+        $error = "Password must be at least 6 characters long.";
+    } else {
+        // Check if username or email already exists
+        $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? OR username = ?");
+        $stmt->bind_param("ss", $email, $username);
+        $stmt->execute();
+        $stmt->store_result();
 
-        if (empty($username) || empty($email) || empty($password)) {
-            $errors[] = "All fields are required.";
-        }
+        if ($stmt->num_rows > 0) {
+            $error = "Username or email is already taken.";
+        } else {
+            // Hash password and insert user
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            
+            $insert_stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
+            $insert_stmt->bind_param("sss", $username, $email, $hashed_password);
 
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $errors[] = "Please enter a valid email address.";
-        }
-
-        if ($password !== $confirm_password) {
-            $errors[] = "Passwords do not match.";
-        }
-
-        if (strlen($password) < 6) {
-            $errors[] = "Password must be at least 6 characters long.";
-        }
-
-        if (empty($errors)){
-            $check_stmt = $conn->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
-            $check_stmt->bind_param("ss", $username, $email);
-            $check_stmt->execute();
-            $check_result = $check_stmt->get_result();
-
-            if ($check_result->num_rows > 0) {
-                $errors[] = "Username or email is already registered.";
-            }else{
-                $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-
-                $insert_stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
-                $insert_stmt->bind_param("sss", $username, $email, $hashed_password);
-                
-                if ($insert_stmt->execute()) {
-                    $success = "Account created successfully! You can now <a href='login.php'>Login here</a>.";
-                }else{
-                    $errors[] = "Something went wrong. Please try again.";
-                }
-
-                $insert_stmt->close();
+            if ($insert_stmt->execute()) {
+                header("Location: login.php?registered=1");
+                exit();
+            } else {
+                $error = "Something went wrong during registration. Please try again.";
             }
-            $check_stmt->close();
+            $insert_stmt->close();
         }
-
+        $stmt->close();
     }
+}
 
+$page_title = "Register - Blog App";
+$css_file   = "auth.css"; // Dynamically loads assets/css/auth.css
+require_once 'includes/header.php';
 ?>
 
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - Blog Application</title>
-    <link rel="stylesheet" href="assets/css/style.css">
-</head>
-<body>
-
-    <div class="form-container" style="max-width: 400px; margin: 50px auto; font-family: sans-serif;">
-        <h2>Create an Account</h2>
-
-        <?php if (!empty($errors)): ?>
-            <div style="color: red; margin-bottom: 15px;">
-                <ul>
-                    <?php foreach ($errors as $error): ?>
-                        <li><?php echo htmlspecialchars($error); ?></li>
-                    <?php endforeach; ?>
-                </ul>
-            </div>
-        <?php endif; ?>
-
-        <?php if (!empty($success)): ?>
-            <div style="color: green; margin-bottom: 15px;">
-                <?php echo $success; ?>
-            </div>
-        <?php endif; ?>
-
-        <form action="register.php" method="POST">
-            
-            <div style="margin-bottom: 15px;">
-                <label for="username">Username</label><br>
-                <input type="text" id="username" name="username" value="<?php echo isset($username) ? htmlspecialchars($username) : ''; ?>" required style="width: 100%; padding: 8px;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label for="email">Email</label><br>
-                <input type="email" id="email" name="email" value="<?php echo isset($email) ? htmlspecialchars($email) : ''; ?>" required style="width: 100%; padding: 8px;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label for="password">Password</label><br>
-                <input type="password" id="password" name="password" required style="width: 100%; padding: 8px;">
-            </div>
-
-            <div style="margin-bottom: 15px;">
-                <label for="confirm_password">Confirm Password</label><br>
-                <input type="password" id="confirm_password" name="confirm_password" required style="width: 100%; padding: 8px;">
-            </div>
-
-            <button type="submit" style="padding: 10px 15px; cursor: pointer;">Register</button>
-        </form>
-
-        <p style="margin-top: 15px;">Already have an account? <a href="login.php">Login here</a></p>
+<div class="auth-container">
+    <div class="auth-header">
+        <h2 class="auth-title">Create Account</h2>
+        <p class="auth-subtitle">Join DevBlog to publish and save articles</p>
     </div>
 
-</body>
-</html>
+    <?php if (!empty($error)): ?>
+        <div class="alert-error"><?php echo htmlspecialchars($error); ?></div>
+    <?php endif; ?>
+
+    <form action="register.php" method="POST">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" class="form-control" placeholder="johndoe" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" class="form-control" placeholder="you@example.com" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="password" id="confirm_password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+        </div>
+
+        <button type="submit" class="btn" style="width: 100%; margin-top: 10px;">Register Account</button>
+    </form>
+
+    <div class="auth-footer-text">
+        Already have an account? <a href="login.php">Log in here</a>
+    </div>
+</div>
+
+<?php require_once 'includes/footer.php'; ?>

@@ -22,7 +22,7 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 $page_title = "My Library - Blog App";
-$css_file   = "library.css"; // Dynamically loads assets/css/library.css
+$css_file   = "library.css";
 require_once 'includes/header.php';
 ?>
 

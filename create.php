@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Create Post - Blog App";
-$css_file   = "create.css"; // Dynamically loads assets/css/create.css
+$css_file   = "create.css"; 
 require_once 'includes/header.php';
 ?>
 

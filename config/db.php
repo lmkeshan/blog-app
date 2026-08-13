@@ -9,7 +9,6 @@ function loadEnv($path) {
     foreach ($lines as $line) {
         $line = trim($line);
 
-        // Skip comments or lines without an equals sign
         if (strpos($line, '#') === 0 || strpos($line, '=') === false) {
             continue;
         }
