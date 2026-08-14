@@ -1,0 +1,56 @@
+/* ==========================================
+   Header & Navigation Styles
+   ========================================== */
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* Standalone Profile Icon Button */
+.nav-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  border-radius: 50%;
+  padding: 2px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-profile-btn:hover {
+  transform: scale(1.05);
+}
+
+.nav-profile-btn.active .nav-avatar-img,
+.nav-profile-btn.active .nav-avatar-fallback {
+  border-color: var(--accent-yellow);
+  box-shadow: 0 0 0 2px var(--accent-yellow);
+}
+
+.nav-avatar-img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-color);
+  display: block;
+}
+
+.nav-avatar-fallback {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background-color: var(--accent-yellow);
+  color: #000;
+  font-weight: 700;
+  font-size: 0.95rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid transparent;
+}

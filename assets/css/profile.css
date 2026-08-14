@@ -1,0 +1,188 @@
+/* Profile Page Layout */
+.profile-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 30px;
+  margin-top: 20px;
+}
+
+@media (max-width: 850px) {
+  .profile-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* User Settings Card */
+.profile-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 30px;
+  height: fit-content;
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.avatar-wrapper {
+  margin: 0 auto 15px auto;
+  width: 90px;
+  height: 90px;
+}
+
+.profile-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--accent-yellow);
+}
+
+.profile-avatar-placeholder {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background-color: var(--accent-yellow);
+  color: #000;
+  font-size: 2.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.user-email {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.profile-form .form-group {
+  margin-bottom: 18px;
+}
+
+.profile-form label {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+}
+
+/* Manage Posts Dashboard */
+.my-posts-section {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding: 30px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-header h3 {
+  color: var(--text-main);
+  font-size: 1.3rem;
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.manage-posts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.manage-post-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background-color: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.manage-post-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.manage-post-thumb {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  object-fit: cover;
+}
+
+.manage-post-thumb-placeholder {
+  width: 60px;
+  height: 60px;
+  border-radius: 6px;
+  background-color: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+}
+
+.manage-post-title {
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.manage-post-title a {
+  color: var(--text-main);
+}
+
+.manage-post-title a:hover {
+  color: var(--accent-yellow);
+}
+
+.manage-post-date {
+  color: var(--text-muted);
+  font-size: 0.8rem;
+}
+
+.manage-post-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.edit-btn {
+  background-color: rgba(255, 193, 7, 0.15);
+  color: var(--accent-yellow);
+  border: 1px solid var(--accent-yellow);
+}
+
+.delete-btn {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #ff6b6b;
+  border: 1px solid #dc3545;
+}
+
+.empty-posts-box {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--text-muted);
+}
