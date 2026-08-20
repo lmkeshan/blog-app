@@ -5,13 +5,32 @@ require_once 'config/db.php';
 // Check login status
 $is_logged_in = isset($_SESSION['user_id']);
 
-// Fetch all posts for both visitors and logged-in users
-$sql = "SELECT blog_posts.*, users.username 
-        FROM blog_posts 
-        JOIN users ON blog_posts.user_id = users.id 
-        ORDER BY blog_posts.created_at DESC";
+$categories = [
+    'Science', 'Technology', 'Business', 'Finance', 'Education',
+    'Health & Wellness', 'Travel', 'Lifestyle', 'Food', 'Entertainment',
+    'Sports', 'News', 'Arts & Culture', 'Fashion', 'Automotive',
+    'Gaming', 'Career', 'Environment', 'Astrology'
+];
 
-$result = $conn->query($sql);
+$selected_category = isset($_GET['cat']) ? trim($_GET['cat']) : 'All';
+
+// Fetch filtered posts
+if ($selected_category !== 'All' && in_array($selected_category, $categories)) {
+    $stmt = $conn->prepare("SELECT blog_posts.*, users.username 
+                            FROM blog_posts 
+                            JOIN users ON blog_posts.user_id = users.id 
+                            WHERE blog_posts.category = ?
+                            ORDER BY blog_posts.created_at DESC");
+    $stmt->bind_param("s", $selected_category);
+    $stmt->execute();
+    $result = $stmt->get_result();
+} else {
+    $sql = "SELECT blog_posts.*, users.username 
+            FROM blog_posts 
+            JOIN users ON blog_posts.user_id = users.id 
+            ORDER BY blog_posts.created_at DESC";
+    $result = $conn->query($sql);
+}
 
 $page_title = "Home - Blog App";
 $css_file   = "index.css";
@@ -34,11 +53,34 @@ require_once 'includes/header.php';
     <h2 class="page-title">Recent Blog Posts</h2>
 </div>
 
+<!-- Category Filter Navigation Bar -->
+<div class="category-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px;">
+    <?php 
+        $all_active_style = ($selected_category === 'All') 
+            ? "background-color: var(--accent-yellow); color: #000; font-weight: bold;" 
+            : "background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);";
+    ?>
+    <a href="index.php" style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; <?php echo $all_active_style; ?>">
+        All
+    </a>
+    
+    <?php foreach ($categories as $cat): ?>
+        <?php 
+            $active_style = ($selected_category === $cat) 
+                ? "background-color: var(--accent-yellow); color: #000; font-weight: bold;" 
+                : "background-color: var(--bg-card); color: var(--text-main); border: 1px solid var(--border-color);";
+        ?>
+        <a href="index.php?cat=<?php echo urlencode($cat); ?>" 
+           style="padding: 6px 14px; border-radius: 20px; text-decoration: none; font-size: 0.85rem; <?php echo $active_style; ?>">
+            <?php echo htmlspecialchars($cat); ?>
+        </a>
+    <?php endforeach; ?>
+</div>
+
 <?php if ($result && $result->num_rows > 0): ?>
     <div class="posts-grid">
         <?php while ($post = $result->fetch_assoc()): ?>
             <?php 
-                // Determine target link: view.php if logged in, login.php if visitor
                 $post_url = $is_logged_in ? "view.php?id=" . $post['id'] : "login.php"; 
             ?>
             <article class="post-card">
@@ -51,6 +93,10 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <div class="post-card-body">
+                    <span style="display: inline-block; background-color: var(--border-color); color: var(--accent-yellow); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; font-weight: 600;">
+                        <?php echo htmlspecialchars($post['category'] ?? 'General'); ?>
+                    </span>
+
                     <h3 class="post-title">
                         <a href="<?php echo $post_url; ?>"><?php echo htmlspecialchars($post['title']); ?></a>
                     </h3>
@@ -67,7 +113,7 @@ require_once 'includes/header.php';
         <?php endwhile; ?>
     </div>
 <?php else: ?>
-    <p>No blog posts found. <a href="create.php" style="color: var(--accent-yellow);">Create your first post</a>!</p>
+    <p>No blog posts found in this category. <a href="create.php" style="color: var(--accent-yellow);">Create your first post</a>!</p>
 <?php endif; ?>
 
 <?php require_once 'includes/footer.php'; ?>

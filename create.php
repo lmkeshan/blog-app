@@ -8,16 +8,24 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $error = "";
+$categories = [
+    'Science', 'Technology', 'Business', 'Finance', 'Education',
+    'Health & Wellness', 'Travel', 'Lifestyle', 'Food', 'Entertainment',
+    'Sports', 'News', 'Arts & Culture', 'Fashion', 'Automotive',
+    'Gaming', 'Career', 'Environment', 'Astrology'
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $title   = trim($_POST['title']);
-    $content = trim($_POST['content']);
-    $user_id = $_SESSION['user_id'];
+    $title     = trim($_POST['title']);
+    $category  = trim($_POST['category'] ?? 'Technology');
+    $content   = trim($_POST['content']);
+    $user_id   = $_SESSION['user_id'];
     $thumbnail_filename = null;
 
     if (empty($title) || empty($content)) {
         $error = "Please fill in both the title and content.";
+    } elseif (!in_array($category, $categories)) {
+        $error = "Please select a valid category.";
     } else {
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             $file_tmp_path = $_FILES['thumbnail']['tmp_name'];
@@ -39,8 +47,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($error)) {
-            $stmt = $conn->prepare("INSERT INTO blog_posts (user_id, title, content, thumbnail) VALUES (?, ?, ?, ?)");
-            $stmt->bind_param("isss", $user_id, $title, $content, $thumbnail_filename);
+            $stmt = $conn->prepare("INSERT INTO blog_posts (user_id, title, category, content, thumbnail) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("issss", $user_id, $title, $category, $content, $thumbnail_filename);
 
             if ($stmt->execute()) {
                 header("Location: index.php");
@@ -71,6 +79,15 @@ require_once 'includes/header.php';
         <div class="form-group">
             <label for="title">Title</label>
             <input type="text" id="title" name="title" class="form-control" placeholder="Enter post title" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-control" required>
+                <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo htmlspecialchars($cat); ?>"><?php echo htmlspecialchars($cat); ?></option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <div class="form-group">

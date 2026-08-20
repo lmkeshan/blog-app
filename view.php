@@ -48,6 +48,12 @@ require_once 'includes/header.php';
     <a href="index.php" class="back-link">&larr; Back to All Posts</a>
 
     <article class="post-article">
+        <div style="margin-bottom: 10px;">
+            <span style="background-color: var(--border-color); color: var(--accent-yellow); font-size: 0.8rem; padding: 3px 10px; border-radius: 4px; font-weight: 600;">
+                <?php echo htmlspecialchars($post['category'] ?? 'General'); ?>
+            </span>
+        </div>
+
         <div class="post-header-wrap">
             <h1 class="post-main-title"><?php echo htmlspecialchars($post['title']); ?></h1>
             

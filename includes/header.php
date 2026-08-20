@@ -33,7 +33,7 @@ if (isset($_SESSION['user_id']) && isset($conn)) {
 <body>
 <header class="site-header">
     <div class="nav-container">
-        <a href="index.php" class="brand-logo">Dev<span>Blog</span></a>
+        <a href="index.php" class="brand-logo">Space<span>Talks</span></a>
         <nav class="desktop-nav">
             <ul class="nav-links">
                 <?php if (isset($_SESSION['user_id'])): ?>

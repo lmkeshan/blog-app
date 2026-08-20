@@ -15,8 +15,14 @@ if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
 $post_id = (int)$_GET['id'];
 $user_id = $_SESSION['user_id'];
 $error   = "";
+$categories = [
+    'Science', 'Technology', 'Business', 'Finance', 'Education',
+    'Health & Wellness', 'Travel', 'Lifestyle', 'Food', 'Entertainment',
+    'Sports', 'News', 'Arts & Culture', 'Fashion', 'Automotive',
+    'Gaming', 'Career', 'Environment', 'Astrology'
+];
 
-$stmt = $conn->prepare("SELECT id, title, content, thumbnail, user_id FROM blog_posts WHERE id = ?");
+$stmt = $conn->prepare("SELECT id, title, category, content, thumbnail, user_id FROM blog_posts WHERE id = ?");
 $stmt->bind_param("i", $post_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -35,12 +41,15 @@ if ($post['user_id'] !== $user_id) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title   = trim($_POST['title']);
-    $content = trim($_POST['content']);
+    $title     = trim($_POST['title']);
+    $category  = trim($_POST['category'] ?? 'Technology');
+    $content   = trim($_POST['content']);
     $thumbnail_filename = $post['thumbnail'];
 
     if (empty($title) || empty($content)) {
         $error = "Please fill in both the title and content.";
+    } elseif (!in_array($category, $categories)) {
+        $error = "Please select a valid category.";
     } else {
         if (isset($_FILES['thumbnail']) && $_FILES['thumbnail']['error'] === UPLOAD_ERR_OK) {
             $file_tmp_path = $_FILES['thumbnail']['tmp_name'];
@@ -67,8 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         if (empty($error)) {
-            $update_stmt = $conn->prepare("UPDATE blog_posts SET title = ?, content = ?, thumbnail = ? WHERE id = ? AND user_id = ?");
-            $update_stmt->bind_param("sssii", $title, $content, $thumbnail_filename, $post_id, $user_id);
+            $update_stmt = $conn->prepare("UPDATE blog_posts SET title = ?, category = ?, content = ?, thumbnail = ? WHERE id = ? AND user_id = ?");
+            $update_stmt->bind_param("ssssii", $title, $category, $content, $thumbnail_filename, $post_id, $user_id);
 
             if ($update_stmt->execute()) {
                 header("Location: view.php?id=" . $post_id);
@@ -99,6 +108,17 @@ require_once 'includes/header.php';
         <div class="form-group">
             <label for="title">Title</label>
             <input type="text" id="title" name="title" class="form-control" value="<?php echo htmlspecialchars($post['title']); ?>" required>
+        </div>
+
+        <div class="form-group">
+            <label for="category">Category</label>
+            <select id="category" name="category" class="form-control" required>
+                <?php foreach ($categories as $cat): ?>
+                    <option value="<?php echo htmlspecialchars($cat); ?>" <?php echo ($post['category'] ?? 'Technology') === $cat ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($cat); ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
         </div>
 
         <?php if (!empty($post['thumbnail']) && file_exists('uploads/' . $post['thumbnail'])): ?>

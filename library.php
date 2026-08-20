@@ -43,6 +43,10 @@ require_once 'includes/header.php';
                 <?php endif; ?>
 
                 <div class="post-card-body">
+                    <span style="display: inline-block; background-color: var(--border-color); color: var(--accent-yellow); font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; margin-bottom: 8px; font-weight: 600;">
+                        <?php echo htmlspecialchars($post['category'] ?? 'General'); ?>
+                    </span>
+
                     <h3 class="post-title">
                         <a href="view.php?id=<?php echo $post['id']; ?>"><?php echo htmlspecialchars($post['title']); ?></a>
                     </h3>
