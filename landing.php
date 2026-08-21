@@ -2,7 +2,7 @@
 session_start();
 require_once 'config/db.php';
 
-$page_title = "Welcome to DevBlog";
+$page_title = "Welcome to SpaceTalks";
 $css_file   = "landing.css";
 require_once 'includes/header.php';
 ?>
