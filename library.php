@@ -27,7 +27,7 @@ require_once 'includes/header.php';
 ?>
 
 <div class="library-header">
-    <h2 class="page-title">📚 My Reading Library</h2>
+    <h2 class="page-title"> My Reading Library</h2>
 </div>
 
 <?php if ($result->num_rows > 0): ?>

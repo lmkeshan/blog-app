@@ -2,7 +2,6 @@
 session_start();
 require_once 'config/db.php';
 
-// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -41,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Login - Blog App";
-$css_file   = "auth.css"; // Dynamically loads assets/css/auth.css
+$css_file   = "auth.css";
 require_once 'includes/header.php';
 ?>
 

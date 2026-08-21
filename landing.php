@@ -3,7 +3,7 @@ session_start();
 require_once 'config/db.php';
 
 $page_title = "Welcome to DevBlog";
-$css_file   = "landing.css"; // Dynamically loads assets/css/landing.css
+$css_file   = "landing.css";
 require_once 'includes/header.php';
 ?>
 

@@ -2,7 +2,6 @@
 session_start();
 require_once 'config/db.php';
 
-// Redirect if already logged in
 if (isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
@@ -23,7 +22,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (strlen($password) < 6) {
         $error = "Password must be at least 6 characters long.";
     } else {
-        // Check if username or email already exists
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = ? OR username = ?");
         $stmt->bind_param("ss", $email, $username);
         $stmt->execute();
@@ -32,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($stmt->num_rows > 0) {
             $error = "Username or email is already taken.";
         } else {
-            // Hash password and insert user
             $hashed_password = password_hash($password, PASSWORD_DEFAULT);
             
             $insert_stmt = $conn->prepare("INSERT INTO users (username, email, password) VALUES (?, ?, ?)");
@@ -51,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Register - Blog App";
-$css_file   = "auth.css"; // Dynamically loads assets/css/auth.css
+$css_file   = "auth.css";
 require_once 'includes/header.php';
 ?>
 

@@ -2,33 +2,34 @@
 session_start();
 require_once 'config/db.php';
 
-// Auth Guard
 if (!isset($_SESSION['user_id'])) {
     header("Location: login.php");
     exit();
 }
 
 $user_id = $_SESSION['user_id'];
+
 $success_msg = "";
 $error_msg   = "";
 
-// Fetch current user data
+$pwd_success_msg = "";
+$pwd_error_msg   = "";
+
 $user_stmt = $conn->prepare("SELECT username, email, avatar FROM users WHERE id = ?");
 $user_stmt->bind_param("i", $user_id);
 $user_stmt->execute();
 $user = $user_stmt->get_result()->fetch_assoc();
 $user_stmt->close();
 
-// Handle Profile Updates (Username, Email, Avatar)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
-    $new_username = trim($_POST['username']);
-    $new_email    = trim($_POST['email']);
-    $avatar_filename = $user['avatar']; // Keep current avatar by default
+    $new_username    = trim($_POST['username']);
+    $new_email       = trim($_POST['email']);
+    $avatar_filename = $user['avatar'];
 
     if (empty($new_username) || empty($new_email)) {
         $error_msg = "Username and Email cannot be empty.";
     } else {
-        // Check if username/email taken by another user
+
         $check_stmt = $conn->prepare("SELECT id FROM users WHERE (username = ? OR email = ?) AND id != ?");
         $check_stmt->bind_param("ssi", $new_username, $new_email, $user_id);
         $check_stmt->execute();
@@ -37,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         if ($check_result->num_rows > 0) {
             $error_msg = "Username or Email is already in use by another account.";
         } else {
-            // Handle Avatar Upload if provided
+
             if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
                 $fileTmpPath   = $_FILES['avatar']['tmp_name'];
                 $fileName      = $_FILES['avatar']['name'];
@@ -83,11 +84,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     }
 }
 
-// Handle Post Deletion
+//password change
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_password'])) {
+    $current_password = $_POST['current_password'];
+    $new_password     = $_POST['new_password'];
+    $confirm_password = $_POST['confirm_password'];
+
+    if (empty($current_password) || empty($new_password) || empty($confirm_password)) {
+        $pwd_error_msg = "All password fields are required.";
+    } elseif ($new_password !== $confirm_password) {
+        $pwd_error_msg = "New password and confirmation do not match.";
+    } elseif (strlen($new_password) < 6) {
+        $pwd_error_msg = "New password must be at least 6 characters long.";
+    } else {
+  
+        $pwd_stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+        $pwd_stmt->bind_param("i", $user_id);
+        $pwd_stmt->execute();
+        $db_user = $pwd_stmt->get_result()->fetch_assoc();
+        $pwd_stmt->close();
+
+        if ($db_user && password_verify($current_password, $db_user['password'])) {
+    
+            $hashed_password = password_hash($new_password, PASSWORD_BCRYPT);
+
+            $update_pwd_stmt = $conn->prepare("UPDATE users SET password = ? WHERE id = ?");
+            $update_pwd_stmt->bind_param("si", $hashed_password, $user_id);
+
+            if ($update_pwd_stmt->execute()) {
+                $pwd_success_msg = "Password updated successfully!";
+            } else {
+                $pwd_error_msg = "Failed to update password. Please try again.";
+            }
+            $update_pwd_stmt->close();
+        } else {
+            $pwd_error_msg = "Current password is incorrect.";
+        }
+    }
+}
+//delete post
 if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_id'])) {
     $delete_id = (int)$_GET['post_id'];
 
-    // Ensure the post belongs to the logged-in user
     $get_post = $conn->prepare("SELECT thumbnail FROM blog_posts WHERE id = ? AND user_id = ?");
     $get_post->bind_param("ii", $delete_id, $user_id);
     $get_post->execute();
@@ -96,12 +134,10 @@ if (isset($_GET['action']) && $_GET['action'] === 'delete' && isset($_GET['post_
     if ($post_res->num_rows === 1) {
         $post_data = $post_res->fetch_assoc();
         
-        // Remove thumbnail file if exists
         if (!empty($post_data['thumbnail']) && file_exists('uploads/' . $post_data['thumbnail'])) {
             unlink('uploads/' . $post_data['thumbnail']);
         }
 
-        // Delete post record
         $del_stmt = $conn->prepare("DELETE FROM blog_posts WHERE id = ? AND user_id = ?");
         $del_stmt->bind_param("ii", $delete_id, $user_id);
         $del_stmt->execute();
@@ -124,8 +160,6 @@ require_once 'includes/header.php';
 ?>
 
 <div class="profile-layout">
-
-    <!-- Section 1: Account Settings -->
     <div class="profile-card">
         <div class="profile-header">
             <div class="avatar-wrapper">
@@ -151,29 +185,64 @@ require_once 'includes/header.php';
             <div class="alert-error"><?php echo htmlspecialchars($error_msg); ?></div>
         <?php endif; ?>
 
+        <!-- Edit Profile Form -->
         <form action="profile.php" method="POST" enctype="multipart/form-data" class="profile-form">
             <div class="form-group">
                 <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="form-control" 
+                <input type="text" id="username" name="username" class="form-control profile-input" 
                        value="<?php echo htmlspecialchars($user['username']); ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" class="form-control" 
+                <input type="email" id="email" name="email" class="form-control profile-input" 
                        value="<?php echo htmlspecialchars($user['email']); ?>" required>
             </div>
 
             <div class="form-group">
                 <label for="avatar">Change Avatar</label>
-                <input type="file" id="avatar" name="avatar" class="form-control" accept="image/*">
+                <input type="file" id="avatar" name="avatar" class="form-control profile-file-input" accept="image/*">
             </div>
 
             <button type="submit" name="update_profile" class="btn" style="width: 100%;">Save Changes</button>
         </form>
+
+        <hr class="profile-divider">
+
+        <!-- Change Password Form -->
+        <div class="password-card-header">
+            <h3>Change Password</h3>
+        </div>
+
+        <?php if (!empty($pwd_success_msg)): ?>
+            <div class="alert-success"><?php echo htmlspecialchars($pwd_success_msg); ?></div>
+        <?php endif; ?>
+
+        <?php if (!empty($pwd_error_msg)): ?>
+            <div class="alert-error"><?php echo htmlspecialchars($pwd_error_msg); ?></div>
+        <?php endif; ?>
+
+        <form action="profile.php" method="POST" class="profile-form password-form">
+            <div class="form-group">
+                <label for="current_password">Current Password</label>
+                <input type="password" id="current_password" name="current_password" class="form-control profile-input" required>
+            </div>
+
+            <div class="form-group">
+                <label for="new_password">New Password</label>
+                <input type="password" id="new_password" name="new_password" class="form-control profile-input" required minlength="6">
+            </div>
+
+            <div class="form-group">
+                <label for="confirm_password">Confirm New Password</label>
+                <input type="password" id="confirm_password" name="confirm_password" class="form-control profile-input" required minlength="6">
+            </div>
+
+            <button type="submit" name="update_password" class="btn btn-secondary" style="width: 100%;">Update Password</button>
+        </form>
     </div>
 
-    <!-- Section 2: Manage My Posts -->
+    <!-- Articles Section -->
     <div class="my-posts-section">
         <div class="section-header">
             <h3>My Published Articles</h3>
@@ -216,7 +285,6 @@ require_once 'includes/header.php';
             </div>
         <?php endif; ?>
     </div>
-
 </div>
 
 <?php require_once 'includes/footer.php'; ?>

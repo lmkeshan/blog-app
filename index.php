@@ -2,7 +2,6 @@
 session_start();
 require_once 'config/db.php';
 
-// Check login status
 $is_logged_in = isset($_SESSION['user_id']);
 
 $categories = [
@@ -37,7 +36,6 @@ $css_file   = "index.css";
 require_once 'includes/header.php';
 ?>
 
-<!-- Optional welcome banner for visitors -->
 <?php if (!$is_logged_in): ?>
     <div class="welcome-banner" style="background-color: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: var(--border-radius); text-align: center; margin-bottom: 30px;">
         <h1 style="color: var(--text-main); font-size: 2rem; margin-bottom: 10px;">Welcome to <span style="color: var(--accent-yellow);">DevBlog</span></h1>
@@ -53,7 +51,6 @@ require_once 'includes/header.php';
     <h2 class="page-title">Recent Blog Posts</h2>
 </div>
 
-<!-- Category Filter Navigation Bar -->
 <div class="category-filter-bar" style="display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 25px;">
     <?php 
         $all_active_style = ($selected_category === 'All') 
